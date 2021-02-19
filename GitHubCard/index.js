@@ -1,15 +1,26 @@
-import axios from 'axios'
+import axios from "axios";
+
 /*
   STEP 1: using axios, send a GET request to the following URL
     (replacing the placeholder with your Github name):
     https://api.github.com/users/<your name>
 */
+const cards = document.querySelector(".cards");
+
 axios.get('https://api.github.com/users/nikolvov')
-  .then(response =>{
-    console.log(response)
+  .then(response => {
+    // console.log(response);
+    //console.log(response.data.message)
+    // making the data a variable
+    const data = response.data;
+    // creating the component and making a variable with component function
+    const component = FillCard(data);
+    // appending component to the parent
+    cards.append(component);
+    console.log(response);
   })
-  .catch(err => {
-    console.log(err)
+  .catch(error => {
+    console.log(error);
   })
 /*
   STEP 2: Inspect and study the data coming back, this is YOUR
@@ -35,7 +46,70 @@ axios.get('https://api.github.com/users/nikolvov')
     user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+// xxx can be anything just used as placement to hold data 
+
+const followersArray = [
+    "tetondan",
+    "dustinmyers",
+    "justsml",
+    "luishrd",
+    "bigknell",
+];
+
+// axios.get('https://api.github.com/users/nikolvov').then( response => {
+//   response.data.map(xxx => {
+//     followersArray.push(xxx.login);
+//   })
+// })
+
+// function passGitInfo(arr){
+//   arr.map(xxx => {
+//     axios.get('https://api.github.com/users/' + xxx).then(response => {
+//       const newGit = FillCard(response.data);
+//       cards.append(newGit);
+//     })
+//   })
+// }
+
+// const githubFollowersProfile = followersArray.map(xxx => {
+//   return `https://api.github.com/users/${xxx}`;
+// })
+
+// githubFollowersProfile.forEach(xxx => {
+//   axios.get(xxx)
+//   .then(response => {
+//     const data = response.data;
+//     cards.append(FillCard(data));
+//   })
+//   .catch(error => {
+//     console.log(error);
+//   });
+// });
+
+
+//stretch + fancy way
+axios.get('https://api.github.com/users/nikolvov/followers')
+.then((response) => {
+  console.log(response);
+  const followers = response.data;
+  followers.forEach(follower => {
+    const component = FillCard(follower)
+    cards.append(component)
+  })
+});
+
+
+//hard code
+followersArray.forEach((follower) => {
+  axios.get(`https://api.github.com/users/${follower}`).then((response) => {
+    const data = response.data;
+    //make component
+    const arrayCard = FillCard(data);
+    cards.appendChild(arrayCard);
+  });
+});
+
+
 
 /*
   STEP 3: Create a function that accepts a single object as its only argument.
@@ -57,33 +131,34 @@ const followersArray = [];
     </div>
 */
 
-function fillCard(array){
+function FillCard(obj){
   /// instantiating the elements
-  const divCard = document.createElement('div')
-  const gitImg = document.createElement('img')
-  const cardInfo = document.createElement('div')
-  const name = document.createElement('h3')
-  const username = document.createElement('p')
-  const location = document.createElement('p')
-  const profile = document.createElement('p')
-  const proURL = document.createElement('a')
-  const followers = document.createElement('p')
-  const following = document.createElement('p')
-  const bio = document.createElement('p')
+  const divCard = document.createElement('div');
+  const gitImg = document.createElement('img');
+  const cardInfo = document.createElement('div');
+  const name = document.createElement('h3');
+  const username = document.createElement('p');
+  const location = document.createElement('p');
+  const profile = document.createElement('p');
+  const proURL = document.createElement('a');
+  const followers = document.createElement('p');
+  const following = document.createElement('p');
+  const bio = document.createElement('p');
   // setting class names, attributes and text
-  divCard.classList.add('card')
-  gitImg.src = imageURL
-  cardInfo.classList.add('card-info')
-  name.classList.add('name')
-  name.textContent = data.name
-  username.classList.add('username')
-  username.textContent = data.login
-  location.textContent = data.location
+  divCard.classList.add('card');
+  cardInfo.classList.add('card-info');
+  name.classList.add('name');
+  username.classList.add('username');
+
+  name.textContent = obj.name;
+  gitImg.src = obj.avatar_url;
+  username.textContent = obj.login;
+  location.textContent = `Location: ${obj.location}`;
   profile.textContent = 'Profile:'
-  proURL.textContent = data.html_url
-  followers.textContent = data.followers
-  following.textContent = data.following
-  bio.textContent = data.bio
+  proURL.setAttribute("href", obj.html_url);
+  followers.textContent = `Followers: ${obj.followers}`;
+  following.textContent = `Following: ${obj.following}`;
+  bio.textContent = `Biography: ${obj.bio}`;
   // creating the hierarchy
   divCard.appendChild(gitImg)
   divCard.appendChild(cardInfo)
@@ -95,7 +170,9 @@ function fillCard(array){
   cardInfo.appendChild(followers)
   cardInfo.appendChild(following)
   cardInfo.appendChild(bio)
+
   // never forget to return!
+  // console.log(divCard)
   return divCard
 }
 
